@@ -139,6 +139,7 @@ const UserPortal = () => {
   }
 
   const selectedCategoryData = categories.find(c => c.id === selectedCategory);
+  const IconComponent = selectedCategoryData?.icon;
 
   return (
     <div className="space-y-6">
@@ -147,7 +148,7 @@ const UserPortal = () => {
           ← Back to Categories
         </Button>
         <div className="flex items-center space-x-2">
-          <selectedCategoryData!.icon className={`w-6 h-6 text-${selectedCategoryData!.color}-600`} />
+          {IconComponent && <IconComponent className={`w-6 h-6 text-${selectedCategoryData!.color}-600`} />}
           <h2 className="text-xl font-bold">{selectedCategoryData!.label}</h2>
         </div>
       </div>
