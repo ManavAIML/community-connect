@@ -70,13 +70,13 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onOpenChang
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
+          <DialogTitle className="flex items-center dark:text-gray-100">
             <Bell className="w-5 h-5 mr-2" />
             Notifications
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="dark:text-gray-300">
             Stay updated with your complaints and system updates.
           </DialogDescription>
         </DialogHeader>
@@ -86,7 +86,9 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onOpenChang
             <div
               key={notification.id}
               className={`p-4 border rounded-lg ${
-                !notification.read ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'
+                !notification.read 
+                  ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700' 
+                  : 'bg-gray-50 dark:bg-gray-700 dark:border-gray-600'
               }`}
             >
               <div className="flex items-start justify-between">
@@ -94,13 +96,13 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onOpenChang
                   {getIcon(notification.type)}
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium">{notification.title}</h4>
+                      <h4 className="text-sm font-medium dark:text-gray-100">{notification.title}</h4>
                       {!notification.read && (
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-                    <p className="text-xs text-gray-400 mt-2">{notification.time}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{notification.message}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">{notification.time}</p>
                   </div>
                 </div>
               </div>
@@ -109,10 +111,10 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onOpenChang
         </div>
 
         <div className="flex justify-between pt-4">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
             Mark All as Read
           </Button>
-          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
             Close
           </Button>
         </div>

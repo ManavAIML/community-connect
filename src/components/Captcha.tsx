@@ -88,7 +88,7 @@ const Captcha: React.FC<CaptchaProps> = ({ onVerify, isVerified }) => {
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="captcha" className="text-gray-700 dark:text-gray-300">Security Check</Label>
+      <Label htmlFor="captcha" className="text-gray-700 dark:text-gray-200">Security Check</Label>
       <div className="flex items-center space-x-2">
         <canvas
           ref={setCanvasRef}
@@ -101,7 +101,7 @@ const Captcha: React.FC<CaptchaProps> = ({ onVerify, isVerified }) => {
           variant="outline"
           size="sm"
           onClick={handleRefresh}
-          className="p-2 dark:border-gray-600 dark:hover:bg-gray-700"
+          className="p-2 dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-200"
         >
           <RefreshCw className="w-4 h-4" />
         </Button>

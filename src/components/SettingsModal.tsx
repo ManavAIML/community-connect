@@ -49,10 +49,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
         <DialogHeader>
-          <DialogTitle>Settings</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="dark:text-gray-100">Settings</DialogTitle>
+          <DialogDescription className="dark:text-gray-300">
             Manage your account settings and preferences.
           </DialogDescription>
         </DialogHeader>
@@ -60,104 +60,108 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
         <div className="space-y-6">
           {/* Profile Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Profile Information</h3>
+            <h3 className="text-lg font-medium dark:text-gray-100">Profile Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name" className="dark:text-gray-200">Full Name</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="dark:text-gray-200">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone" className="dark:text-gray-200">Phone Number</Label>
                 <Input
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address" className="dark:text-gray-200">Address</Label>
                 <Input
                   id="address"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
             </div>
           </div>
 
-          <Separator />
+          <Separator className="dark:bg-gray-600" />
 
           {/* Appearance */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Appearance</h3>
+            <h3 className="text-lg font-medium dark:text-gray-100">Appearance</h3>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Dark Mode</Label>
-                <p className="text-sm text-muted-foreground">Toggle between light and dark themes</p>
+                <Label className="dark:text-gray-200">Dark Mode</Label>
+                <p className="text-sm text-muted-foreground dark:text-gray-400">Toggle between light and dark themes</p>
               </div>
               <Switch checked={theme === 'dark'} onCheckedChange={toggleTheme} />
             </div>
             <div className="space-y-2">
-              <Label>Language</Label>
+              <Label className="dark:text-gray-200">Language</Label>
               <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="es">Spanish</SelectItem>
-                  <SelectItem value="fr">French</SelectItem>
-                  <SelectItem value="de">German</SelectItem>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-600">
+                  <SelectItem value="en" className="dark:text-gray-100 dark:focus:bg-gray-700">English</SelectItem>
+                  <SelectItem value="es" className="dark:text-gray-100 dark:focus:bg-gray-700">Spanish</SelectItem>
+                  <SelectItem value="fr" className="dark:text-gray-100 dark:focus:bg-gray-700">French</SelectItem>
+                  <SelectItem value="de" className="dark:text-gray-100 dark:focus:bg-gray-700">German</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <Separator />
+          <Separator className="dark:bg-gray-600" />
 
           {/* Notifications */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Notifications</h3>
+            <h3 className="text-lg font-medium dark:text-gray-100">Notifications</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Push Notifications</Label>
-                  <p className="text-sm text-muted-foreground">Receive notifications about complaint updates</p>
+                  <Label className="dark:text-gray-200">Push Notifications</Label>
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">Receive notifications about complaint updates</p>
                 </div>
                 <Switch checked={notifications} onCheckedChange={setNotifications} />
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Email Updates</Label>
-                  <p className="text-sm text-muted-foreground">Get email notifications for important updates</p>
+                  <Label className="dark:text-gray-200">Email Updates</Label>
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">Get email notifications for important updates</p>
                 </div>
                 <Switch checked={emailUpdates} onCheckedChange={setEmailUpdates} />
               </div>
             </div>
           </div>
 
-          <Separator />
+          <Separator className="dark:bg-gray-600" />
 
           {/* Preferences */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Preferences</h3>
+            <h3 className="text-lg font-medium dark:text-gray-100">Preferences</h3>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Auto-save drafts</Label>
-                <p className="text-sm text-muted-foreground">Automatically save complaint drafts</p>
+                <Label className="dark:text-gray-200">Auto-save drafts</Label>
+                <p className="text-sm text-muted-foreground dark:text-gray-400">Automatically save complaint drafts</p>
               </div>
               <Switch checked={autoSave} onCheckedChange={setAutoSave} />
             </div>
@@ -165,10 +169,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
         </div>
 
         <div className="flex justify-end space-x-2 pt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
             Cancel
           </Button>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} className="dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white">
             Save Changes
           </Button>
         </div>
