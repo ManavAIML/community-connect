@@ -29,7 +29,7 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({ open, onOpenChange }) => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const predefinedResponses: { [key: string]: string } = {
     'hello': 'Hello! How can I help you today?',
@@ -54,6 +54,14 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({ open, onOpenChange }) => {
     
     return predefinedResponses['default'];
   };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -90,28 +98,22 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({ open, onOpenChange }) => {
     }
   };
 
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
-  }, [messages, isTyping]);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md h-[70vh] flex flex-col">
+      <DialogContent className="max-w-md h-[70vh] flex flex-col dark:bg-gray-800 dark:border-gray-700">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
+          <DialogTitle className="flex items-center text-gray-900 dark:text-gray-100">
             <MessageCircle className="w-5 h-5 mr-2" />
             AI Assistant
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-gray-600 dark:text-gray-400">
             Ask me anything about Community Connect
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 flex flex-col space-y-4">
-          <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
-            <div className="space-y-4">
+        <div className="flex-1 flex flex-col space-y-4 min-h-0">
+          <ScrollArea className="flex-1 h-full">
+            <div className="space-y-4 p-2">
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -121,7 +123,7 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({ open, onOpenChange }) => {
                     className={`max-w-[80%] p-3 rounded-lg ${
                       message.sender === 'user'
                         ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-900'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                     }`}
                   >
                     <div className="flex items-start space-x-2">
@@ -129,7 +131,7 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({ open, onOpenChange }) => {
                       <div className="flex-1">
                         <p className="text-sm whitespace-pre-line">{message.content}</p>
                         <p className={`text-xs mt-1 ${
-                          message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                          message.sender === 'user' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
                         }`}>
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
@@ -142,7 +144,7 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({ open, onOpenChange }) => {
               
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-100 text-gray-900 p-3 rounded-lg">
+                  <div className="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 p-3 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <Bot className="w-4 h-4" />
                       <div className="flex space-x-1">
@@ -154,16 +156,18 @@ const ChatbotModal: React.FC<ChatbotModalProps> = ({ open, onOpenChange }) => {
                   </div>
                 </div>
               )}
+              
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
 
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 pt-2 border-t dark:border-gray-600">
             <Input
               placeholder="Type your message..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="flex-1"
+              className="flex-1 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
             />
             <Button onClick={handleSendMessage} disabled={!inputMessage.trim() || isTyping}>
               <Send className="w-4 h-4" />
