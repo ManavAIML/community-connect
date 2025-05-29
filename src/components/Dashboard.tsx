@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +19,8 @@ import {
   Phone,
   Mail,
   HelpCircle,
-  MessageCircle
+  MessageCircle,
+  LogOut
 } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -39,7 +41,7 @@ const Dashboard = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [chatbotOpen, setChatbotOpen] = useState(false);
-  const { user, complaints } = useUser();
+  const { user, complaints, signOut } = useUser();
   const { theme, toggleTheme } = useTheme();
 
   const stats = [
@@ -72,6 +74,10 @@ const Dashboard = () => {
       case 'resolved': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   const renderContent = () => {
@@ -215,6 +221,12 @@ const Dashboard = () => {
               <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
+              </Button>
+
+              {/* Sign Out */}
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
               </Button>
               
               {/* Profile */}

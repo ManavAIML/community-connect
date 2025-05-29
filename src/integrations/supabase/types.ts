@@ -9,7 +9,93 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      complaints: {
+        Row: {
+          assigned_employee: string | null
+          category: string
+          date_created: string
+          description: string
+          id: string
+          images: string[] | null
+          location: string
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_employee?: string | null
+          category: string
+          date_created?: string
+          description: string
+          id?: string
+          images?: string[] | null
+          location: string
+          priority: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_employee?: string | null
+          category?: string
+          date_created?: string
+          description?: string
+          id?: string
+          images?: string[] | null
+          location?: string
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          dob: string | null
+          email: string
+          government_id: string | null
+          id: string
+          name: string
+          official_number: string | null
+          phone: string | null
+          updated_at: string
+          user_type: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          dob?: string | null
+          email: string
+          government_id?: string | null
+          id: string
+          name: string
+          official_number?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_type: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          dob?: string | null
+          email?: string
+          government_id?: string | null
+          id?: string
+          name?: string
+          official_number?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

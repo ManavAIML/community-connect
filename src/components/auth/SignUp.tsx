@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff } from 'lucide-react';
-import { useUser } from '../../contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
 import Captcha from '../Captcha';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SignUpProps {
   onAuth: (isAuthenticated: boolean) => void;
@@ -29,7 +29,6 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
-  const { setUser } = useUser();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -97,31 +96,57 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (formData.name && formData.email && formData.password && formData.userType) {
-        setUser({
-          id: Date.now().toString(),
-          name: formData.name,
-          email: formData.email,
-          userType: formData.userType as 'user' | 'government' | 'employee'
-        });
-        
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+            user_type: formData.userType,
+            government_id: formData.governmentId,
+            official_number: formData.officialNumber,
+          }
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.user) {
+        // Update the profile with additional information
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            name: formData.name,
+            user_type: formData.userType,
+            government_id: formData.governmentId,
+            official_number: formData.officialNumber,
+          })
+          .eq('id', data.user.id);
+
+        if (profileError) {
+          console.error('Profile update error:', profileError);
+        }
+
         toast({
           title: "Account Created!",
-          description: "Your account has been successfully created.",
+          description: "Your account has been successfully created. Please check your email to verify your account.",
         });
         
         onAuth(true);
-      } else {
-        toast({
-          title: "Error",
-          description: "Please fill in all fields.",
-          variant: "destructive"
-        });
       }
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred during signup.",
+        variant: "destructive"
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const isGovernmentOrEmployee = formData.userType === 'government' || formData.userType === 'employee';

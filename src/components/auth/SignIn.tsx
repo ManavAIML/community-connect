@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
-import { useUser } from '../../contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
 import Captcha from '../Captcha';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SignInProps {
   onAuth: (isAuthenticated: boolean) => void;
@@ -20,7 +20,6 @@ const SignIn: React.FC<SignInProps> = ({ onAuth, onSwitchToSignUp }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
-  const { setUser } = useUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,31 +35,34 @@ const SignIn: React.FC<SignInProps> = ({ onAuth, onSwitchToSignUp }) => {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (email && password) {
-        setUser({
-          id: '1',
-          name: email.split('@')[0],
-          email: email,
-          userType: 'user'
-        });
-        
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.user) {
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in.",
         });
         
         onAuth(true);
-      } else {
-        toast({
-          title: "Error",
-          description: "Please fill in all fields.",
-          variant: "destructive"
-        });
       }
+    } catch (error: any) {
+      console.error('Signin error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Invalid email or password.",
+        variant: "destructive"
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
