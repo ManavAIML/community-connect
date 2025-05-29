@@ -21,7 +21,9 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
     email: '',
     password: '',
     confirmPassword: '',
-    userType: ''
+    userType: '',
+    governmentId: '',
+    officialNumber: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -63,6 +65,36 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
       return;
     }
 
+    // Validate government/employee specific fields
+    if ((formData.userType === 'government' || formData.userType === 'employee')) {
+      if (!formData.governmentId) {
+        toast({
+          title: "Government ID Required",
+          description: "Please enter your government ID.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!formData.officialNumber) {
+        toast({
+          title: "Official Number Required",
+          description: "Please enter your official number.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!/^\d{8}$/.test(formData.officialNumber)) {
+        toast({
+          title: "Invalid Official Number",
+          description: "Official number must be exactly 8 digits.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     // Simulate API call
@@ -91,6 +123,8 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
       setIsLoading(false);
     }, 1000);
   };
+
+  const isGovernmentOrEmployee = formData.userType === 'government' || formData.userType === 'employee';
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -196,6 +230,42 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
                 </SelectContent>
               </Select>
             </div>
+
+            {isGovernmentOrEmployee && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="governmentId" className="text-gray-700 dark:text-gray-300">Government ID</Label>
+                  <Input
+                    id="governmentId"
+                    type="text"
+                    placeholder="Enter your government ID"
+                    value={formData.governmentId}
+                    onChange={(e) => handleInputChange('governmentId', e.target.value)}
+                    required
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="officialNumber" className="text-gray-700 dark:text-gray-300">Official Number</Label>
+                  <Input
+                    id="officialNumber"
+                    type="text"
+                    placeholder="Enter 8-digit official number"
+                    value={formData.officialNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 8);
+                      handleInputChange('officialNumber', value);
+                    }}
+                    required
+                    maxLength={8}
+                    pattern="\d{8}"
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Must be exactly 8 digits</p>
+                </div>
+              </>
+            )}
 
             <Captcha 
               onVerify={setIsCaptchaVerified}
