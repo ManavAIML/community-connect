@@ -18,9 +18,7 @@ import {
   Phone,
   Mail,
   HelpCircle,
-  MessageCircle,
-  Sun,
-  Moon
+  MessageCircle
 } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -201,11 +199,6 @@ const Dashboard = () => {
               {activeTab.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
             </h2>
             <div className="flex items-center space-x-4">
-              {/* Theme Toggle */}
-              <Button variant="outline" size="sm" onClick={toggleTheme}>
-                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </Button>
-              
               {/* Chatbot Button */}
               <Button variant="outline" size="sm" onClick={() => setChatbotOpen(true)}>
                 <MessageCircle className="w-4 h-4 mr-2" />
