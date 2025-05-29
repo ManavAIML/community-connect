@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +30,7 @@ const SignIn: React.FC<SignInProps> = ({ onAuth, onSwitchToSignUp }) => {
           id: '1',
           name: email.split('@')[0],
           email: email,
-          userType: 'citizen'
+          userType: 'user'
         });
         
         toast({
