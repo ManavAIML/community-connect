@@ -34,8 +34,9 @@ const Captcha: React.FC<CaptchaProps> = ({ onVerify, isVerified }) => {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Set background
-    ctx.fillStyle = '#f8f9fa';
+    // Set background - check for dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    ctx.fillStyle = isDarkMode ? '#374151' : '#f8f9fa';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Add noise lines
@@ -49,7 +50,7 @@ const Captcha: React.FC<CaptchaProps> = ({ onVerify, isVerified }) => {
     
     // Draw text
     ctx.font = '24px Arial';
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = isDarkMode ? '#f3f4f6' : '#333';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
@@ -87,20 +88,20 @@ const Captcha: React.FC<CaptchaProps> = ({ onVerify, isVerified }) => {
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="captcha">Security Check</Label>
+      <Label htmlFor="captcha" className="text-gray-700 dark:text-gray-300">Security Check</Label>
       <div className="flex items-center space-x-2">
         <canvas
           ref={setCanvasRef}
           width={150}
           height={50}
-          className="border rounded bg-gray-50 dark:bg-gray-800"
+          className="border rounded bg-gray-50 dark:bg-gray-800 dark:border-gray-600"
         />
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={handleRefresh}
-          className="p-2"
+          className="p-2 dark:border-gray-600 dark:hover:bg-gray-700"
         >
           <RefreshCw className="w-4 h-4" />
         </Button>
@@ -111,7 +112,7 @@ const Captcha: React.FC<CaptchaProps> = ({ onVerify, isVerified }) => {
         placeholder="Enter the text shown above"
         value={userInput}
         onChange={(e) => handleInputChange(e.target.value)}
-        className={isVerified ? "border-green-500" : ""}
+        className={`dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400 ${isVerified ? "border-green-500" : ""}`}
       />
       {isVerified && (
         <p className="text-sm text-green-600 dark:text-green-400">✓ Verification successful</p>

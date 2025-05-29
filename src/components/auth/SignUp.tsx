@@ -45,31 +45,39 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
       return;
     }
 
-    setIsLoading(true);
-
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Error",
-        description: "Passwords do not match.",
+        title: "Password Mismatch",
+        description: "Passwords do not match. Please try again.",
         variant: "destructive"
       });
-      setIsLoading(false);
       return;
     }
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "Weak Password",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
 
     // Simulate API call
     setTimeout(() => {
       if (formData.name && formData.email && formData.password && formData.userType) {
         setUser({
-          id: '1',
+          id: Date.now().toString(),
           name: formData.name,
           email: formData.email,
-          userType: formData.userType as 'citizen' | 'government' | 'employee'
+          userType: formData.userType as 'user' | 'government' | 'employee'
         });
         
         toast({
-          title: "Account created!",
-          description: "Welcome to Community Connect!",
+          title: "Account Created!",
+          description: "Your account has been successfully created.",
         });
         
         onAuth(true);
@@ -86,10 +94,10 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md dark:bg-gray-800 dark:border-gray-700">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">Join Community Connect</CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">Create your account to start reporting issues</CardDescription>
+          <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">Create Account</CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-400">Join Community Connect today</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -97,11 +105,12 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
               <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">Full Name</Label>
               <Input
                 id="name"
+                type="text"
                 placeholder="Enter your full name"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 required
-                className="dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               />
             </div>
 
@@ -114,22 +123,8 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 required
-                className="dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="userType" className="text-gray-700 dark:text-gray-300">Account Type</Label>
-              <Select onValueChange={(value) => handleInputChange('userType', value)}>
-                <SelectTrigger className="dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
-                  <SelectValue placeholder="Select account type" />
-                </SelectTrigger>
-                <SelectContent className="dark:bg-gray-800 dark:border-gray-600">
-                  <SelectItem value="citizen" className="dark:text-gray-100 dark:focus:bg-gray-700">Citizen</SelectItem>
-                  <SelectItem value="government" className="dark:text-gray-100 dark:focus:bg-gray-700">Government Official</SelectItem>
-                  <SelectItem value="employee" className="dark:text-gray-100 dark:focus:bg-gray-700">Municipal Employee</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             
             <div className="space-y-2">
@@ -142,7 +137,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
                   required
-                  className="dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                 />
                 <Button
                   type="button"
@@ -170,7 +165,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                   required
-                  className="dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                 />
                 <Button
                   type="button"
@@ -186,6 +181,20 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
                   )}
                 </Button>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="userType" className="text-gray-700 dark:text-gray-300">Account Type</Label>
+              <Select onValueChange={(value) => handleInputChange('userType', value)}>
+                <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
+                  <SelectValue placeholder="Select account type" className="dark:text-gray-400" />
+                </SelectTrigger>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-600">
+                  <SelectItem value="user" className="dark:text-gray-100 dark:focus:bg-gray-700">Citizen</SelectItem>
+                  <SelectItem value="government" className="dark:text-gray-100 dark:focus:bg-gray-700">Government Official</SelectItem>
+                  <SelectItem value="employee" className="dark:text-gray-100 dark:focus:bg-gray-700">Municipal Employee</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <Captcha 

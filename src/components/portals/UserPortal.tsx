@@ -106,10 +106,10 @@ const UserPortal = () => {
   const handleSubmitComplaint = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (complaintForm.description.split(' ').length < 40) {
+    if (complaintForm.description.split(' ').length < 10) {
       toast({
         title: "Description too short",
-        description: "Please provide at least 40 words describing the issue.",
+        description: "Please provide at least 10 words describing the issue.",
         variant: "destructive"
       });
       return;
@@ -231,7 +231,7 @@ const UserPortal = () => {
                   value={complaintForm.streetName}
                   onChange={(e) => setComplaintForm({ ...complaintForm, streetName: e.target.value })}
                   required
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                 />
               </div>
               <div className="space-y-2">
@@ -242,23 +242,23 @@ const UserPortal = () => {
                   value={complaintForm.location}
                   onChange={(e) => setComplaintForm({ ...complaintForm, location: e.target.value })}
                   required
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-gray-700 dark:text-gray-300">Issue Description * (Minimum 40 words)</Label>
+              <Label htmlFor="description" className="text-gray-700 dark:text-gray-300">Issue Description * (Minimum 10 words)</Label>
               <Textarea
                 id="description"
                 placeholder="Describe the issue in detail. Include when you noticed it, how it affects the community, and any other relevant information..."
-                className="min-h-32 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                className="min-h-32 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                 value={complaintForm.description}
                 onChange={(e) => setComplaintForm({ ...complaintForm, description: e.target.value })}
                 required
               />
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Word count: {complaintForm.description.split(' ').filter(w => w.length > 0).length} / 40 minimum
+                Word count: {complaintForm.description.split(' ').filter(w => w.length > 0).length} / 10 minimum
               </p>
             </div>
 
@@ -267,7 +267,7 @@ const UserPortal = () => {
                 <Label htmlFor="priority" className="text-gray-700 dark:text-gray-300">Priority Level *</Label>
                 <Select onValueChange={(value) => setComplaintForm({ ...complaintForm, priority: value })}>
                   <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder="Select priority" className="dark:placeholder-gray-400" />
                   </SelectTrigger>
                   <SelectContent className="dark:bg-gray-800 dark:border-gray-600">
                     <SelectItem value="low" className="dark:text-gray-100 dark:focus:bg-gray-700">Low - Can wait a few days</SelectItem>
@@ -284,7 +284,7 @@ const UserPortal = () => {
                   value={complaintForm.contactInfo}
                   onChange={(e) => setComplaintForm({ ...complaintForm, contactInfo: e.target.value })}
                   required
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                 />
               </div>
             </div>
@@ -344,7 +344,7 @@ const UserPortal = () => {
                 type="submit" 
                 className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                 disabled={
-                  complaintForm.description.split(' ').filter(w => w.length > 0).length < 40 ||
+                  complaintForm.description.split(' ').filter(w => w.length > 0).length < 10 ||
                   complaintForm.images.length === 0
                 }
               >
