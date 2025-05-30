@@ -81,6 +81,75 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const createOrUpdateProfile = async (authUser: User) => {
+    try {
+      // First try to get existing profile
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .maybeSingle();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('Error fetching profile:', fetchError);
+        return null;
+      }
+
+      if (existingProfile) {
+        // Profile exists, return it
+        return {
+          id: existingProfile.id,
+          name: existingProfile.name,
+          email: existingProfile.email,
+          phone: existingProfile.phone,
+          userType: existingProfile.user_type as 'user' | 'government' | 'employee',
+          address: existingProfile.address,
+          dob: existingProfile.dob,
+          government_id: existingProfile.government_id,
+          official_number: existingProfile.official_number,
+        };
+      } else {
+        // Profile doesn't exist, create it from user metadata
+        const userData = authUser.user_metadata || {};
+        const newProfile = {
+          id: authUser.id,
+          name: userData.name || authUser.email?.split('@')[0] || 'User',
+          email: authUser.email || '',
+          phone: userData.phone || '',
+          user_type: userData.user_type || 'user',
+          government_id: userData.government_id || '',
+          official_number: userData.official_number || '',
+        };
+
+        const { data: createdProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([newProfile])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating profile:', createError);
+          return null;
+        }
+
+        return {
+          id: createdProfile.id,
+          name: createdProfile.name,
+          email: createdProfile.email,
+          phone: createdProfile.phone,
+          userType: createdProfile.user_type as 'user' | 'government' | 'employee',
+          address: createdProfile.address,
+          dob: createdProfile.dob,
+          government_id: createdProfile.government_id,
+          official_number: createdProfile.official_number,
+        };
+      }
+    } catch (error) {
+      console.error('Error in createOrUpdateProfile:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -89,32 +158,11 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setSession(session);
         
         if (session?.user) {
-          // Fetch user profile from our profiles table
+          // Fetch or create user profile
           setTimeout(async () => {
-            try {
-              const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
-
-              if (error) {
-                console.error('Error fetching profile:', error);
-              } else if (profile) {
-                setUser({
-                  id: profile.id,
-                  name: profile.name,
-                  email: profile.email,
-                  phone: profile.phone,
-                  userType: profile.user_type as 'user' | 'government' | 'employee',
-                  address: profile.address,
-                  dob: profile.dob,
-                  government_id: profile.government_id,
-                  official_number: profile.official_number,
-                });
-              }
-            } catch (error) {
-              console.error('Error in profile fetch:', error);
+            const profile = await createOrUpdateProfile(session.user);
+            if (profile) {
+              setUser(profile);
             }
           }, 0);
         } else {
