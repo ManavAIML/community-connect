@@ -21,6 +21,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
     email: '',
     password: '',
     confirmPassword: '',
+    phone: '',
     userType: '',
     governmentId: '',
     officialNumber: ''
@@ -41,6 +42,15 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
       toast({
         title: "Security Check Required",
         description: "Please complete the captcha verification.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.phone.trim()) {
+      toast({
+        title: "Phone Number Required",
+        description: "Please enter your phone number.",
         variant: "destructive"
       });
       return;
@@ -103,6 +113,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
         options: {
           data: {
             name: formData.name,
+            phone: formData.phone,
             user_type: formData.userType,
             government_id: formData.governmentId,
             official_number: formData.officialNumber,
@@ -120,6 +131,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
           .from('profiles')
           .update({
             name: formData.name,
+            phone: formData.phone,
             user_type: formData.userType,
             government_id: formData.governmentId,
             official_number: formData.officialNumber,
@@ -161,7 +173,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">Full Name</Label>
+              <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">Full Name *</Label>
               <Input
                 id="name"
                 type="text"
@@ -174,7 +186,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email</Label>
+              <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email *</Label>
               <Input
                 id="email"
                 type="email"
@@ -185,9 +197,22 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
                 className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-gray-700 dark:text-gray-300">Phone Number *</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="Enter your phone number"
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                required
+                className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
+              />
+            </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Password</Label>
+              <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Password *</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -215,7 +240,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300">Confirm Password *</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -243,7 +268,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="userType" className="text-gray-700 dark:text-gray-300">Account Type</Label>
+              <Label htmlFor="userType" className="text-gray-700 dark:text-gray-300">Account Type *</Label>
               <Select onValueChange={(value) => handleInputChange('userType', value)}>
                 <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
                   <SelectValue placeholder="Select account type" className="dark:text-gray-400" />
@@ -259,7 +284,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
             {isGovernmentOrEmployee && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="governmentId" className="text-gray-700 dark:text-gray-300">Government ID</Label>
+                  <Label htmlFor="governmentId" className="text-gray-700 dark:text-gray-300">Government ID *</Label>
                   <Input
                     id="governmentId"
                     type="text"
@@ -272,7 +297,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth, onSwitchToSignIn }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="officialNumber" className="text-gray-700 dark:text-gray-300">Official Number</Label>
+                  <Label htmlFor="officialNumber" className="text-gray-700 dark:text-gray-300">Official Number *</Label>
                   <Input
                     id="officialNumber"
                     type="text"

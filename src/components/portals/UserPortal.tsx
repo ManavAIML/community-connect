@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const UserPortal = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -37,6 +37,7 @@ const UserPortal = () => {
     contactInfo: '',
     images: [] as File[]
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, complaints, setComplaints } = useUser();
 
   const categories = [
@@ -103,9 +104,43 @@ const UserPortal = () => {
     }));
   };
 
-  const handleSubmitComplaint = (e: React.FormEvent) => {
+  const uploadComplaintImages = async (complaintId: string, images: File[]) => {
+    const uploadedUrls: string[] = [];
+
+    for (const image of images) {
+      const fileName = `${complaintId}-${Date.now()}-${Math.random().toString(36).substring(7)}.${image.name.split('.').pop()}`;
+      
+      const { data, error } = await supabase.storage
+        .from('complaint-images')
+        .upload(`private/${complaintId}/${fileName}`, image);
+
+      if (error) {
+        console.error('Upload error:', error);
+        continue;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('complaint-images')
+        .getPublicUrl(data.path);
+
+      uploadedUrls.push(publicUrl);
+    }
+
+    return uploadedUrls;
+  };
+
+  const handleSubmitComplaint = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to submit a complaint.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (complaintForm.description.split(' ').length < 10) {
       toast({
         title: "Description too short",
@@ -124,38 +159,88 @@ const UserPortal = () => {
       return;
     }
 
-    const newComplaint = {
-      id: Date.now().toString(),
-      title: categories.find(c => c.id === selectedCategory)?.label || 'New Complaint',
-      category: selectedCategory,
-      description: complaintForm.description,
-      location: `${complaintForm.streetName}, ${complaintForm.location}`,
-      priority: complaintForm.priority as 'low' | 'medium' | 'high',
-      status: 'pending' as const,
-      dateCreated: new Date().toISOString(),
-      images: complaintForm.images.map(file => file.name)
-    };
+    setIsSubmitting(true);
 
-    setComplaints([...complaints, newComplaint]);
-    
-    // Generate mock complaint ID
-    const complaintId = `CC${Date.now().toString().slice(-6)}`;
-    
-    toast({
-      title: "Complaint Submitted Successfully!",
-      description: `Your complaint ID is: ${complaintId}. We'll resolve this within 10 working days.`
-    });
+    try {
+      // Create complaint in database
+      const { data: complaintData, error: complaintError } = await supabase
+        .from('complaints')
+        .insert({
+          user_id: user.id,
+          title: categories.find(c => c.id === selectedCategory)?.label || 'New Complaint',
+          category: selectedCategory,
+          description: complaintForm.description,
+          location: `${complaintForm.streetName}, ${complaintForm.location}`,
+          priority: complaintForm.priority as 'low' | 'medium' | 'high',
+          status: 'pending'
+        })
+        .select()
+        .single();
 
-    // Reset form
-    setComplaintForm({
-      streetName: '',
-      location: '',
-      description: '',
-      priority: '',
-      contactInfo: '',
-      images: []
-    });
-    setSelectedCategory('');
+      if (complaintError) {
+        throw complaintError;
+      }
+
+      // Upload images if complaint was created successfully
+      const imageUrls = await uploadComplaintImages(complaintData.id, complaintForm.images);
+
+      // Update complaint with image URLs
+      if (imageUrls.length > 0) {
+        const { error: updateError } = await supabase
+          .from('complaints')
+          .update({ images: imageUrls })
+          .eq('id', complaintData.id);
+
+        if (updateError) {
+          console.error('Error updating complaint with images:', updateError);
+        }
+      }
+
+      // Update local state
+      const newComplaint = {
+        id: complaintData.id,
+        title: complaintData.title,
+        category: complaintData.category,
+        description: complaintData.description,
+        location: complaintData.location,
+        priority: complaintData.priority as 'low' | 'medium' | 'high',
+        status: complaintData.status as 'pending' | 'assigned' | 'in-progress' | 'resolved',
+        dateCreated: complaintData.date_created,
+        assignedEmployee: complaintData.assigned_employee,
+        images: imageUrls
+      };
+
+      setComplaints([...complaints, newComplaint]);
+      
+      // Generate mock complaint ID for display
+      const complaintId = `CC${complaintData.id.slice(-6)}`;
+      
+      toast({
+        title: "Complaint Submitted Successfully!",
+        description: `Your complaint ID is: ${complaintId}. We'll resolve this within 10 working days.`
+      });
+
+      // Reset form
+      setComplaintForm({
+        streetName: '',
+        location: '',
+        description: '',
+        priority: '',
+        contactInfo: '',
+        images: []
+      });
+      setSelectedCategory('');
+
+    } catch (error: any) {
+      console.error('Error submitting complaint:', error);
+      toast({
+        title: "Error submitting complaint",
+        description: error.message || "An error occurred while submitting your complaint. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!selectedCategory) {
@@ -344,12 +429,13 @@ const UserPortal = () => {
                 type="submit" 
                 className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                 disabled={
+                  isSubmitting ||
                   complaintForm.description.split(' ').filter(w => w.length > 0).length < 10 ||
                   complaintForm.images.length === 0
                 }
               >
                 <FileText className="w-4 h-4 mr-2" />
-                Submit Complaint
+                {isSubmitting ? "Submitting..." : "Submit Complaint"}
               </Button>
             </div>
           </form>

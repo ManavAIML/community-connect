@@ -23,6 +23,7 @@ interface UserContextType {
   complaints: Complaint[];
   setComplaints: (complaints: Complaint[]) => void;
   signOut: () => Promise<void>;
+  loadUserComplaints: () => Promise<void>;
 }
 
 interface Complaint {
@@ -45,6 +46,40 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [complaints, setComplaints] = useState<Complaint[]>([]);
+
+  const loadUserComplaints = async () => {
+    if (!session?.user) return;
+
+    try {
+      const { data: complaintsData, error } = await supabase
+        .from('complaints')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('date_created', { ascending: false });
+
+      if (error) {
+        console.error('Error loading complaints:', error);
+        return;
+      }
+
+      const formattedComplaints: Complaint[] = complaintsData.map(complaint => ({
+        id: complaint.id,
+        title: complaint.title,
+        category: complaint.category,
+        description: complaint.description,
+        location: complaint.location,
+        priority: complaint.priority as 'low' | 'medium' | 'high',
+        status: complaint.status as 'pending' | 'assigned' | 'in-progress' | 'resolved',
+        dateCreated: complaint.date_created,
+        assignedEmployee: complaint.assigned_employee,
+        images: complaint.images || []
+      }));
+
+      setComplaints(formattedComplaints);
+    } catch (error) {
+      console.error('Error in loadUserComplaints:', error);
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener
@@ -84,6 +119,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }, 0);
         } else {
           setUser(null);
+          setComplaints([]);
         }
         
         setLoading(false);
@@ -98,6 +134,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Load complaints when user changes
+  useEffect(() => {
+    if (user && session) {
+      loadUserComplaints();
+    }
+  }, [user, session]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -114,7 +157,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser, 
       complaints, 
       setComplaints, 
-      signOut 
+      signOut,
+      loadUserComplaints
     }}>
       {children}
     </UserContext.Provider>
